@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # shap-clj
 
 A Clojure implementation of [SHAP](https://github.com/shap/shap) — Shapley-value
@@ -143,3 +144,8 @@ permutation of each other to make this clean.
 - Seed all randomness. Tests and demos use fixed seeds so outputs are bit-reproducible.
 - Backgrounds are small and deterministic (`shap-clj.fixtures/det-background`). No float noise in the test fixtures.
 - The efficiency residual (`shap/efficiency-residuals`) is the single strongest correctness signal; new explainers should be tested against it first.
+
+
+# Notes
+
+This project is a reimplementation of SHAP from Python. It should be an effective replacement when using DeepDiamond and Neanderthal in the Clojure world. It should have all the same standard features and be able to tell you how well all the inputs to a Deep Neural Net are performing in regards to how much they affect the output.
