@@ -6,11 +6,16 @@
 
  :aliases
  {:test
-  {:extra-paths ["test"]
+  {:extra-paths ["test" "examples"]
    :extra-deps  {io.github.cognitect-labs/test-runner
                  {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
    :main-opts   ["-m" "cognitect.test-runner"]
    :exec-fn     cognitect.test-runner.api/test}
+
+  ;; Runnable demo: a hand-built tiny model with SHAP explanations
+  :example
+  {:extra-paths ["examples"]
+   :main-opts ["-m" "shap-clj.examples.tip-predictor"]}
 
   ;; Optional: Tablecloth-dataset coercion in shap-clj.coerce.tablecloth
   :tablecloth
