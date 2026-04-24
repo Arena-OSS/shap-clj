@@ -90,25 +90,44 @@
   "PermutationExplainer over every row of X.  Options:
     :n-permutations int   (default 10 -> 20 paired runs)
     :seed           long
-    :feature-names  vector<string>"
+    :feature-names  vector<string>
+    :parallelism    int   (default availableProcessors; set 1 to disable)
+
+  Rows are independent, so the per-row loop fans out across `:parallelism`
+  worker threads.  Each row gets its own RNG seeded from (seed + i) so
+  results stay deterministic and identical across thread counts."
   ([model background X] (explain model background X {}))
-  ([model background X {:keys [n-permutations seed feature-names]
+  ([model background X {:keys [n-permutations seed feature-names parallelism]
                         :or {n-permutations 10
-                             seed 42}}]
+                             seed 42
+                             parallelism (.. Runtime getRuntime availableProcessors)}}]
    (let [model (model/as-model model)
          masker (masker/independent background)
          X (c/to-2d X)
          n (c/n-rows X)
          d (c/n-cols X)
-         rng (java.util.Random. (long seed))
          values (make-array Double/TYPE n d)
          base-val (aget (common/baseline model masker) 0)
          base-values (double-array n base-val)
          pred (model/predict model X)
-         opts {:n-permutations n-permutations :rng rng}]
-     (dotimes [i n]
-       (let [phi (explain-row model masker (aget X i) opts)]
-         (System/arraycopy phi 0 ^"[D" (aget ^"[[D" values i) 0 d)))
+         par (max 1 (int parallelism))
+         run-row! (fn [^long i]
+                    (let [rng (java.util.Random. (+ (long seed) i))
+                          phi (explain-row model masker (aget ^"[[D" X (int i))
+                                           {:n-permutations n-permutations :rng rng})]
+                      (System/arraycopy phi 0 ^"[D" (aget ^"[[D" values (int i)) 0 d)))]
+     (if (or (<= par 1) (<= n 1))
+       (dotimes [i n] (run-row! i))
+       (let [chunk-size (max 1 (long (Math/ceil (/ (double n) (double par)))))
+             futs (->> (range 0 n chunk-size)
+                       (mapv (fn [^long start]
+                               (let [end (min n (+ start chunk-size))]
+                                 (future
+                                   (loop [i start]
+                                     (when (< i end)
+                                       (run-row! i)
+                                       (recur (inc i)))))))))]
+         (doseq [f futs] @f)))
      (expl/explanation {:values values
                         :base-values base-values
                         :data X
@@ -116,4 +135,5 @@
                         :prediction pred
                         :method :permutation
                         :extra {:n-permutations n-permutations
-                                :seed seed}}))))
+                                :seed seed
+                                :parallelism par}}))))
