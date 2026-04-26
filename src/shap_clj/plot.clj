@@ -115,6 +115,21 @@
 (def ^:private svg-axis-color "#333")
 (def ^:private svg-grid-color "#eee")
 (def ^:private svg-text-color "#222")
+;; Concrete font stack — we cannot rely on the markdown renderer's default
+;; <text> font, especially in static markdown previewers which sometimes
+;; resolve "sans-serif" to an unintended fallback or refuse to render at all.
+(def ^:private svg-font-family
+  "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif")
+(def ^:private svg-mono-family
+  "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace")
+;; Default font sizes — these are SVG user units, so they scale with the SVG
+;; when a markdown renderer applies max-width:100% in a narrow column. The
+;; values below are tuned so a viewport as narrow as 480 CSS px (typical
+;; IDE preview pane) still renders text at ≥10px on screen.
+(def ^:private svg-title-fs   16)
+(def ^:private svg-tick-fs    13)
+(def ^:private svg-label-fs   13)
+(def ^:private svg-axis-fs    13)
 
 (defn- svg-fmt-num [^double v]
   (cond
