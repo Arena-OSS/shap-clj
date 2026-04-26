@@ -226,16 +226,16 @@
     :title     chart title  (default \"SHAP — mean |value| per feature\")"
   ([explanation] (bar-svg explanation {}))
   ([explanation {:keys [top-n width height title]
-                 :or {top-n 25 width 720
+                 :or {top-n 25 width 600
                       title "SHAP — mean |value| per feature"}}]
    (let [ranking (expl/feature-ranking explanation)
          shown (vec (take top-n ranking))
          n (count shown)
-         row-h 22
-         pad-top 50
-         pad-bot 40
-         pad-left 240
-         pad-right 70
+         row-h 26
+         pad-top 56
+         pad-bot 50
+         pad-left 220
+         pad-right 80
          h (long (or height (+ pad-top pad-bot (* row-h n))))
          plot-w (- width pad-left pad-right)
          max-v (double (apply max 0.0 (map :mean-abs-value shown)))
@@ -249,8 +249,9 @@
                         (str "<line x1=\"" x "\" y1=\"" pad-top
                              "\" x2=\"" x "\" y2=\"" (- h pad-bot)
                              "\" stroke=\"" svg-grid-color "\" stroke-width=\"1\"/>"
-                             "<text x=\"" x "\" y=\"" (- h pad-bot -16)
-                             "\" text-anchor=\"middle\" font-family=\"sans-serif\" font-size=\"11\" fill=\""
+                             "<text x=\"" x "\" y=\"" (- h pad-bot -18)
+                             "\" text-anchor=\"middle\" font-family=\"" svg-font-family
+                             "\" font-size=\"" svg-tick-fs "\" fill=\""
                              svg-text-color "\">" (svg-fmt-num t) "</text>")))
          bars (apply str
                 (map-indexed
@@ -260,28 +261,32 @@
                           label-x (- pad-left 10)
                           val-x (+ pad-left bar-w 6)]
                       (str "<rect x=\"" pad-left "\" y=\"" y
-                           "\" width=\"" (max 0.0 bar-w) "\" height=\"" (* row-h 0.8)
+                           "\" width=\"" (max 0.0 bar-w) "\" height=\"" (* row-h 0.78)
                            "\" fill=\"" svg-bar-color "\" />"
-                           "<text x=\"" label-x "\" y=\"" (+ (row-y i) 4)
-                           "\" text-anchor=\"end\" font-family=\"monospace\" font-size=\"11\" fill=\""
-                           svg-text-color "\">" (svg-escape (svg-truncate (str feature) 32)) "</text>"
-                           "<text x=\"" val-x "\" y=\"" (+ (row-y i) 4)
-                           "\" font-family=\"sans-serif\" font-size=\"11\" fill=\""
+                           "<text x=\"" label-x "\" y=\"" (+ (row-y i) 5)
+                           "\" text-anchor=\"end\" font-family=\"" svg-mono-family
+                           "\" font-size=\"" svg-label-fs "\" fill=\""
+                           svg-text-color "\">" (svg-escape (svg-truncate (str feature) 24)) "</text>"
+                           "<text x=\"" val-x "\" y=\"" (+ (row-y i) 5)
+                           "\" font-family=\"" svg-font-family
+                           "\" font-size=\"" svg-label-fs "\" fill=\""
                            svg-text-color "\">" (svg-fmt-num (double mean-abs-value)) "</text>")))
                   shown))]
      (str "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"" width "\" height=\"" h
           "\" viewBox=\"0 0 " width " " h "\" role=\"img\" aria-label=\"SHAP bar plot\">"
           "<rect x=\"0\" y=\"0\" width=\"" width "\" height=\"" h "\" fill=\"white\"/>"
-          "<text x=\"" (int (/ width 2)) "\" y=\"22\" text-anchor=\"middle\" "
-          "font-family=\"sans-serif\" font-size=\"14\" font-weight=\"bold\" fill=\""
+          "<text x=\"" (int (/ width 2)) "\" y=\"26\" text-anchor=\"middle\" "
+          "font-family=\"" svg-font-family
+          "\" font-size=\"" svg-title-fs "\" font-weight=\"bold\" fill=\""
           svg-text-color "\">" (svg-escape title) "</text>"
           tick-lines
           "<line x1=\"" pad-left "\" y1=\"" pad-top
           "\" x2=\"" pad-left "\" y2=\"" (- h pad-bot)
           "\" stroke=\"" svg-axis-color "\" stroke-width=\"1\"/>"
           bars
-          "<text x=\"" (+ pad-left (/ plot-w 2)) "\" y=\"" (- h 6)
-          "\" text-anchor=\"middle\" font-family=\"sans-serif\" font-size=\"12\" fill=\""
+          "<text x=\"" (+ pad-left (/ plot-w 2)) "\" y=\"" (- h 8)
+          "\" text-anchor=\"middle\" font-family=\"" svg-font-family
+          "\" font-size=\"" svg-axis-fs "\" fill=\""
           svg-text-color "\">mean(|SHAP value|)</text>"
           "</svg>"))))
 
