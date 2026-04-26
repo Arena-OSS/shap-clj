@@ -345,18 +345,20 @@
                         (str "<line x1=\"" x "\" y1=\"" pad-top
                              "\" x2=\"" x "\" y2=\"" (- h pad-bot)
                              "\" stroke=\"" svg-grid-color "\" stroke-width=\"1\"/>"
-                             "<text x=\"" x "\" y=\"" (+ (- h pad-bot) 14)
-                             "\" text-anchor=\"middle\" font-family=\"sans-serif\" font-size=\"11\" fill=\""
+                             "<text x=\"" x "\" y=\"" (+ (- h pad-bot) 18)
+                             "\" text-anchor=\"middle\" font-family=\"" svg-font-family
+                             "\" font-size=\"" svg-tick-fs "\" fill=\""
                              svg-text-color "\">" (svg-fmt-num t) "</text>")))
          zero-x (->x 0.0)
          row-labels (apply str
                       (map-indexed
                         (fn [i {:keys [feature]}]
                           (str "<text x=\"" (- pad-left 8) "\" y=\""
-                               (+ (row-y-center i) 4)
-                               "\" text-anchor=\"end\" font-family=\"monospace\" font-size=\"11\" fill=\""
+                               (+ (row-y-center i) 5)
+                               "\" text-anchor=\"end\" font-family=\"" svg-mono-family
+                               "\" font-size=\"" svg-label-fs "\" fill=\""
                                svg-text-color "\">"
-                               (svg-escape (svg-truncate (str feature) 32))
+                               (svg-escape (svg-truncate (str feature) 24))
                                "</text>"))
                         shown))
          row-bands (apply str
@@ -393,9 +395,9 @@
                                "\" fill=\"" color
                                "\" fill-opacity=\"0.65\"/>")))))
                   shown))
-         legend-w 220
+         legend-w (min 260 (- width pad-right pad-left 20))
          legend-x (- width pad-right legend-w)
-         legend-y (- h 32)
+         legend-y (- h 36)
          legend-stops (apply str
                         (for [k (range 21)
                               :let [t (/ k 20.0)
@@ -404,13 +406,15 @@
                           (str "<rect x=\"" (format "%.2f" x)
                                "\" y=\"" legend-y
                                "\" width=\"" (/ legend-w 20.0)
-                               "\" height=\"10\" fill=\"" color "\"/>")))
+                               "\" height=\"12\" fill=\"" color "\"/>")))
          legend (str legend-stops
-                     "<text x=\"" legend-x "\" y=\"" (- legend-y 4)
-                     "\" font-family=\"sans-serif\" font-size=\"10\" fill=\""
+                     "<text x=\"" legend-x "\" y=\"" (- legend-y 6)
+                     "\" font-family=\"" svg-font-family
+                     "\" font-size=\"" svg-tick-fs "\" fill=\""
                      svg-text-color "\">low</text>"
-                     "<text x=\"" (+ legend-x legend-w) "\" y=\"" (- legend-y 4)
-                     "\" text-anchor=\"end\" font-family=\"sans-serif\" font-size=\"10\" fill=\""
+                     "<text x=\"" (+ legend-x legend-w) "\" y=\"" (- legend-y 6)
+                     "\" text-anchor=\"end\" font-family=\"" svg-font-family
+                     "\" font-size=\"" svg-tick-fs "\" fill=\""
                      svg-text-color "\">high feature value</text>")]
      (str "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"" width "\" height=\"" h
           "\" viewBox=\"0 0 " width " " h "\" role=\"img\" aria-label=\"SHAP beeswarm plot\">"
@@ -425,11 +429,13 @@
           "\" stroke=\"" svg-axis-color "\" stroke-width=\"1\"/>"
           dots
           row-labels
-          "<text x=\"" (int (/ width 2)) "\" y=\"22\" text-anchor=\"middle\" "
-          "font-family=\"sans-serif\" font-size=\"14\" font-weight=\"bold\" fill=\""
+          "<text x=\"" (int (/ width 2)) "\" y=\"30\" text-anchor=\"middle\" "
+          "font-family=\"" svg-font-family
+          "\" font-size=\"" svg-title-fs "\" font-weight=\"bold\" fill=\""
           svg-text-color "\">" (svg-escape title) "</text>"
-          "<text x=\"" (+ pad-left (/ plot-w 2)) "\" y=\"" (- h pad-bot -32)
-          "\" text-anchor=\"middle\" font-family=\"sans-serif\" font-size=\"12\" fill=\""
+          "<text x=\"" (+ pad-left (/ plot-w 2)) "\" y=\"" (- h pad-bot -38)
+          "\" text-anchor=\"middle\" font-family=\"" svg-font-family
+          "\" font-size=\"" svg-axis-fs "\" fill=\""
           svg-text-color "\">SHAP value (impact on model output)</text>"
           legend
           "</svg>"))))
