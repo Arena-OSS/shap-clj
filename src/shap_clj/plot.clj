@@ -303,7 +303,7 @@
     :max-points-per-feature  cap dots per row, sampled deterministically (default 800)"
   ([explanation] (beeswarm-svg explanation {}))
   ([explanation {:keys [top-n width height title max-points-per-feature]
-                 :or {top-n 25 width 760
+                 :or {top-n 25 width 640
                       title "SHAP beeswarm — per-sample SHAP value, colored by feature value"
                       max-points-per-feature 800}}]
    (let [V ^"[[D" (:values explanation)
@@ -314,10 +314,10 @@
          shown (vec (take top-n ranking))
          n-rows (count shown)
          feat->idx (into {} (map-indexed (fn [i f] [f i]) feats))
-         row-h 26
-         pad-top 50
-         pad-bot 70
-         pad-left 240
+         row-h 28
+         pad-top 60
+         pad-bot 78
+         pad-left 220
          pad-right 60
          h (long (or height (+ pad-top pad-bot (* row-h n-rows))))
          plot-w (- width pad-left pad-right)
