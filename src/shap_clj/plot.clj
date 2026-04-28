@@ -452,7 +452,7 @@
     :title    chart title (default \"SHAP waterfall — row N\")"
   ([explanation row-index] (waterfall-svg explanation row-index {}))
   ([explanation row-index {:keys [top-k width height title]
-                           :or {top-k 12 width 760}}]
+                           :or {top-k 12 width 640}}]
    (let [V ^"[[D" (:values explanation)
          D ^"[[D" (:data explanation)
          i (int row-index)
@@ -482,10 +482,10 @@
                 rest-row (cons rest-row)
                 true vec)
          n (count bars)
-         row-h 26
-         pad-top 60
-         pad-bot 60
-         pad-left 280
+         row-h 28
+         pad-top 70
+         pad-bot 64
+         pad-left 240
          pad-right 80
          h (long (or height (+ pad-top pad-bot (* row-h n))))
          plot-w (- width pad-left pad-right)
@@ -504,15 +504,16 @@
          hi (double (Math/max hi (+ lo 0.05)))
          ->x (fn [^double v]
                (+ pad-left (* (/ (- v lo) (- hi lo)) plot-w)))
-         ticks (axis-ticks lo hi 6)
+         ticks (axis-ticks lo hi 5)
          tick-lines (apply str
                       (for [t ticks
                             :let [x (->x t)]]
                         (str "<line x1=\"" x "\" y1=\"" pad-top
                              "\" x2=\"" x "\" y2=\"" (- h pad-bot)
                              "\" stroke=\"" svg-grid-color "\" stroke-width=\"1\"/>"
-                             "<text x=\"" x "\" y=\"" (+ (- h pad-bot) 14)
-                             "\" text-anchor=\"middle\" font-family=\"sans-serif\" font-size=\"11\" fill=\""
+                             "<text x=\"" x "\" y=\"" (+ (- h pad-bot) 18)
+                             "\" text-anchor=\"middle\" font-family=\"" svg-font-family
+                             "\" font-size=\"" svg-tick-fs "\" fill=\""
                              svg-text-color "\">" (svg-fmt-num t) "</text>")))
          row-y-top (fn [^long k] (+ pad-top (* k row-h)))
          row-y-mid (fn [^long k] (+ (row-y-top k) (/ row-h 2)))
@@ -544,13 +545,15 @@
                                                 "\" height=\"" bar-h
                                                 "\" fill=\"" color
                                                 "\" fill-opacity=\"0.85\"/>"
-                                                "<text x=\"" label-x "\" y=\"" (+ (row-y-mid k) 4)
-                                                "\" text-anchor=\"end\" font-family=\"monospace\" font-size=\"11\" fill=\""
+                                                "<text x=\"" label-x "\" y=\"" (+ (row-y-mid k) 5)
+                                                "\" text-anchor=\"end\" font-family=\"" svg-mono-family
+                                                "\" font-size=\"" svg-label-fs "\" fill=\""
                                                 svg-text-color "\">" (svg-escape label) "</text>"
                                                 "<text x=\"" (format "%.1f" val-x)
-                                                "\" y=\"" (+ (row-y-mid k) 4)
+                                                "\" y=\"" (+ (row-y-mid k) 5)
                                                 "\" text-anchor=\"" val-anchor
-                                                "\" font-family=\"sans-serif\" font-size=\"11\" fill=\""
+                                                "\" font-family=\"" svg-font-family
+                                                "\" font-size=\"" svg-label-fs "\" fill=\""
                                                 svg-text-color "\">" val-text "</text>")]
                                   {:running end
                                    :k (inc k)
@@ -560,14 +563,16 @@
          base-line (str "<line x1=\"" (->x base) "\" y1=\"" pad-top
                         "\" x2=\"" (->x base) "\" y2=\"" (- h pad-bot)
                         "\" stroke=\"#888\" stroke-dasharray=\"3 3\" stroke-width=\"1\"/>"
-                        "<text x=\"" (->x base) "\" y=\"" (- pad-top 6)
-                        "\" text-anchor=\"middle\" font-family=\"sans-serif\" font-size=\"11\" fill=\""
+                        "<text x=\"" (->x base) "\" y=\"" (- pad-top 8)
+                        "\" text-anchor=\"middle\" font-family=\"" svg-font-family
+                        "\" font-size=\"" svg-tick-fs "\" fill=\""
                         svg-text-color "\">E[f(X)] = " (svg-fmt-num base) "</text>")
          pred-line (str "<line x1=\"" (->x pred) "\" y1=\"" pad-top
                         "\" x2=\"" (->x pred) "\" y2=\"" (- h pad-bot)
                         "\" stroke=\"#222\" stroke-width=\"1\"/>"
-                        "<text x=\"" (->x pred) "\" y=\"" (- pad-top 6)
-                        "\" text-anchor=\"middle\" font-family=\"sans-serif\" font-size=\"11\" fill=\""
+                        "<text x=\"" (->x pred) "\" y=\"" (- pad-top 8)
+                        "\" text-anchor=\"middle\" font-family=\"" svg-font-family
+                        "\" font-size=\"" svg-tick-fs "\" fill=\""
                         svg-text-color "\" font-weight=\"bold\">f(x) = " (svg-fmt-num pred) "</text>")
          title* (or title (str "SHAP waterfall — row " row-index))]
      (str "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"" width "\" height=\"" h
@@ -580,10 +585,12 @@
           (apply str bar-rects)
           base-line
           pred-line
-          "<text x=\"" (int (/ width 2)) "\" y=\"24\" text-anchor=\"middle\" "
-          "font-family=\"sans-serif\" font-size=\"14\" font-weight=\"bold\" fill=\""
+          "<text x=\"" (int (/ width 2)) "\" y=\"30\" text-anchor=\"middle\" "
+          "font-family=\"" svg-font-family
+          "\" font-size=\"" svg-title-fs "\" font-weight=\"bold\" fill=\""
           svg-text-color "\">" (svg-escape title*) "</text>"
-          "<text x=\"" (+ pad-left (/ plot-w 2)) "\" y=\"" (- h 8)
-          "\" text-anchor=\"middle\" font-family=\"sans-serif\" font-size=\"12\" fill=\""
+          "<text x=\"" (+ pad-left (/ plot-w 2)) "\" y=\"" (- h 10)
+          "\" text-anchor=\"middle\" font-family=\"" svg-font-family
+          "\" font-size=\"" svg-axis-fs "\" fill=\""
           svg-text-color "\">model output (P)</text>"
           "</svg>"))))
